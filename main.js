@@ -1,34 +1,56 @@
-const display = document.querySelector('.display');
-const buttons = document.querySelectorAll('button');
+document.addEventListener('DOMContentLoaded', function () {
+  const display = document.getElementById('display');
+  let currentInput = '';
 
-let currentInput = '';
-let operator = '';
-let previousInput = '';
+  document
+    .querySelectorAll('.round, .gray, .orange, .wide')
+    .forEach((button) => {
+      button.addEventListener('click', function () {
+        const value = this.getAttribute('data-value');
 
-buttons.forEach((button) => {
-  button.addEventListener('click', () => {
-    const value = button.textContent;
-    if (!isNaN(value) || value === '.') {
-      currentInput += value;
+        if (value === '=') {
+          try {
+            currentInput = eval(
+              currentInput.replace('×', '*').replace('÷', '/')
+            );
+            display.textContent = currentInput;
+          } catch (e) {
+            display.textContent = 'Error';
+            currentInput = '';
+          }
+        } else if (value === 'AC') {
+          currentInput = '';
+          display.textContent = '0';
+        } else if (value === 'back') {
+          currentInput = currentInput.slice(0, -1);
+          display.textContent = currentInput || '0';
+        } else {
+          currentInput += value;
+          display.textContent = currentInput;
+        }
+      });
+    });
+
+  document.addEventListener('keydown', function (event) {
+    const key = event.key;
+
+    if (!isNaN(key) || '+-*/.'.includes(key)) {
+      currentInput += key.replace('*', '×').replace('/', '÷');
       display.textContent = currentInput;
-    } else if (value === 'AC') {
-      currentInput = '';
-      previousInput = '';
-      operator = '';
-      display.textContent = '0';
-    } else if (value === '=') {
-      if (previousInput && operator) {
-        currentInput = eval(previousInput + operator + currentInput);
+    } else if (key === 'Enter') {
+      try {
+        currentInput = eval(currentInput.replace('×', '*').replace('÷', '/'));
         display.textContent = currentInput;
-        previousInput = '';
-        operator = '';
-      }
-    } else {
-      if (currentInput) {
-        previousInput = currentInput;
-        operator = value;
+      } catch (e) {
+        display.textContent = 'Error';
         currentInput = '';
       }
+    } else if (key === 'Backspace') {
+      currentInput = currentInput.slice(0, -1);
+      display.textContent = currentInput || '0';
+    } else if (key === 'Escape') {
+      currentInput = '';
+      display.textContent = '0';
     }
   });
 });
